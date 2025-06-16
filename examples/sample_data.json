@@ -1,0 +1,35 @@
+{
+  "title": "Friend Points Example",
+  "entries": [
+    {
+      "name": "A",
+      "value": 10,
+      "last_updated": 1703123456.789
+    },
+    {
+      "name": "B",
+      "value": 9,
+      "last_updated": 1703123400.123
+    },
+    {
+      "name": "C",
+      "value": 8,
+      "last_updated": 1703123300.456
+    },
+    {
+      "name": "D",
+      "value": 8,
+      "last_updated": 1703123350.789
+    },
+    {
+      "name": "E",
+      "value": 9,
+      "last_updated": 1750117307.4894269
+    },
+    {
+      "name": "F",
+      "value": 13,
+      "last_updated": 1750117413.3563678
+    }
+  ]
+}

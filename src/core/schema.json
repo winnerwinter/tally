@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Tally Data Schema",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "The title of this tally list"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name/identifier for this entry"
+          },
+          "value": {
+            "type": "integer",
+            "description": "The point value for this entry"
+          },
+          "last_updated": {
+            "type": "number",
+            "description": "Timestamp when this entry last achieved its current value (for tiebreaking)"
+          }
+        },
+        "required": ["name", "value", "last_updated"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["title", "entries"],
+  "additionalProperties": false
+}
