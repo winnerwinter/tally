@@ -404,7 +404,7 @@ class PyQtTallyApp(QMainWindow):
     def _get_position_change_indicator(self, name: str, current_position: int) -> str:
         """Get the position change indicator for an entry"""
         if name not in self.previous_positions:
-            return "⚪ -"  # No previous state
+            return "🌱 -"  # New entry
         
         previous_position = self.previous_positions[name]
         
