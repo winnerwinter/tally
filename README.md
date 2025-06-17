@@ -32,9 +32,12 @@ Tally is a lightweight point-tracking application perfect for keeping score in g
 
 ### Running Tally
 
+From command line:
 ```bash
 python3 run_tally.py
 ```
+
+**Easy Launch (macOS)**: Double-click `Tally.command` in Finder for one-click startup without using the terminal.
 
 ## How to Use
 
