@@ -100,15 +100,12 @@ class PyQtTallyApp(QMainWindow):
         control_layout = QHBoxLayout()
         self.increment_btn = QPushButton("➕ +1")
         self.decrement_btn = QPushButton("➖ -1") 
-        self.edit_name_btn = QPushButton("✏️ Edit Name")
         
         self.increment_btn.clicked.connect(self.increment_selected)
         self.decrement_btn.clicked.connect(self.decrement_selected)
-        self.edit_name_btn.clicked.connect(self.edit_selected_name)
         
         control_layout.addWidget(self.increment_btn)
         control_layout.addWidget(self.decrement_btn)
-        control_layout.addWidget(self.edit_name_btn)
         control_layout.addStretch()
         layout.addLayout(control_layout)
         
@@ -120,17 +117,12 @@ class PyQtTallyApp(QMainWindow):
         # Bottom buttons
         bottom_layout = QHBoxLayout()
         self.copy_simple_btn = QPushButton("📋 Copy Simple Dump")
-        self.preview_btn = QPushButton("👀 Preview")
-        self.copy_changes_btn = QPushButton("🔄 Update & Copy Changes")
         
         self.copy_simple_btn.clicked.connect(self.copy_simple_dump)
-        self.preview_btn.clicked.connect(self.preview_simple_dump)
-        self.copy_changes_btn.clicked.connect(self.update_and_copy_changes)
         
-        bottom_layout.addWidget(self.copy_simple_btn)
-        bottom_layout.addWidget(self.preview_btn)
         bottom_layout.addStretch()
-        bottom_layout.addWidget(self.copy_changes_btn)
+        bottom_layout.addWidget(self.copy_simple_btn)
+        bottom_layout.addStretch()
         layout.addLayout(bottom_layout)
         
     def load_last_file_or_start_empty(self):
@@ -432,33 +424,6 @@ class PyQtTallyApp(QMainWindow):
         for rank, entry in enumerate(sorted_entries, 1):
             self.previous_positions[entry['name']] = rank
     
-    def preview_simple_dump(self):
-        """Show a preview of what will be copied"""
-        dump_text = self.generate_simple_dump()
-        
-        # Create a message box with the preview
-        msg = QMessageBox(self)
-        msg.setWindowTitle("Preview - Simple Dump")
-        msg.setText("This is what will be copied to clipboard:")
-        msg.setDetailedText(dump_text)
-        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        
-        # Rename buttons
-        copy_btn = msg.button(QMessageBox.Ok)
-        copy_btn.setText("📋 Copy to Clipboard")
-        cancel_btn = msg.button(QMessageBox.Cancel)
-        cancel_btn.setText("Close")
-        
-        # Show dialog and handle result
-        result = msg.exec_()
-        if result == QMessageBox.Ok:
-            self.clipboard.setText(dump_text)
-            # Capture current positions for next comparison
-            self._capture_current_positions()
-            QMessageBox.information(self, "Copied", f"Copied {len(self.entries)} entries to clipboard")
-        
-    def update_and_copy_changes(self):
-        QMessageBox.information(self, "TODO", "Update and copy changes functionality coming soon")
 
 
 def main():
