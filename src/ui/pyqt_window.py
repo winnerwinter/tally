@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout
                              QWidget, QPushButton, QLineEdit, QListWidget, QLabel, 
                              QListWidgetItem, QMessageBox, QInputDialog, QFileDialog)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QClipboard
+from PyQt5.QtGui import QFont
 
 # Import our modules
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))

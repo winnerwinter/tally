@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Run the main application:
 ```bash
-python run_tally.py
+python3 run_tally.py
 ```
 
 The application requires PyQt5 to be installed. If not present, install with:

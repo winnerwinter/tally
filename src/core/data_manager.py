@@ -67,22 +67,3 @@ class DataManager:
         except Exception as e:
             raise RuntimeError(f"Failed to save file: {e}")
     
-    def create_empty_data(self, title: str = "New Tally List") -> Dict:
-        """Create empty tally data structure"""
-        data = {
-            "title": title,
-            "entries": []
-        }
-        
-        # Validate the empty structure
-        self.validate_data(data)
-        
-        return data
-    
-    def is_valid_file(self, file_path: str) -> tuple[bool, Optional[str]]:
-        """Check if a file is a valid tally data file"""
-        try:
-            self.load_file(file_path)
-            return True, None
-        except Exception as e:
-            return False, str(e)
