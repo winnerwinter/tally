@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout
                              QWidget, QPushButton, QLineEdit, QListWidget, QLabel, 
                              QListWidgetItem, QMessageBox, QInputDialog, QFileDialog)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QClipboard
 
 # Import our modules
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -21,11 +21,15 @@ class PyQtTallyApp(QMainWindow):
         self.setWindowTitle("Tally - Point Tracker")
         self.setGeometry(100, 100, 600, 500)
         
+        # Get clipboard reference
+        self.clipboard = QApplication.clipboard()
+        
         # Current data
         self.title = "New Tally List"
         self.entries = []
         self.selected_entry_name = None  # Track by name instead of index
         self.current_file_path = None    # Track the current file
+        self.previous_positions = {}     # Track previous positions for change indicators
         
         # Initialize data manager and settings
         schema_path = os.path.join(os.path.dirname(__file__), '..', 'core', 'schema.json')
@@ -116,12 +120,15 @@ class PyQtTallyApp(QMainWindow):
         # Bottom buttons
         bottom_layout = QHBoxLayout()
         self.copy_simple_btn = QPushButton("📋 Copy Simple Dump")
+        self.preview_btn = QPushButton("👀 Preview")
         self.copy_changes_btn = QPushButton("🔄 Update & Copy Changes")
         
         self.copy_simple_btn.clicked.connect(self.copy_simple_dump)
+        self.preview_btn.clicked.connect(self.preview_simple_dump)
         self.copy_changes_btn.clicked.connect(self.update_and_copy_changes)
         
         bottom_layout.addWidget(self.copy_simple_btn)
+        bottom_layout.addWidget(self.preview_btn)
         bottom_layout.addStretch()
         bottom_layout.addWidget(self.copy_changes_btn)
         layout.addLayout(bottom_layout)
@@ -139,6 +146,8 @@ class PyQtTallyApp(QMainWindow):
                 self.title_edit.setText(self.title)
                 self.refresh_display()
                 self.update_window_title()
+                # Capture initial positions as baseline
+                self._capture_current_positions()
                 return
             except Exception:
                 # If loading fails, just start empty
@@ -151,6 +160,8 @@ class PyQtTallyApp(QMainWindow):
         self.title_edit.setText(self.title)
         self.refresh_display()
         self.update_window_title()
+        # Capture initial positions as baseline (empty, but sets up tracking)
+        self._capture_current_positions()
         
     def refresh_display(self):
         """Update the list with current entries"""
@@ -299,6 +310,9 @@ class PyQtTallyApp(QMainWindow):
             self.refresh_display()
             self.update_window_title()
             
+            # Capture initial positions as baseline
+            self._capture_current_positions()
+            
             QMessageBox.information(self, "Success", f"Loaded file: {os.path.basename(file_path)}")
             
         except Exception as e:
@@ -336,6 +350,9 @@ class PyQtTallyApp(QMainWindow):
             self.refresh_display()
             self.update_window_title()
             
+            # Capture initial positions as baseline
+            self._capture_current_positions()
+            
             QMessageBox.information(self, "Success", f"Created new file: {os.path.basename(file_path)}")
         except Exception as e:
             QMessageBox.critical(self, "Error Creating File", f"Failed to create file:\n{str(e)}")
@@ -361,7 +378,84 @@ class PyQtTallyApp(QMainWindow):
             self.setWindowTitle("Tally - Point Tracker")
         
     def copy_simple_dump(self):
-        QMessageBox.information(self, "TODO", "Copy simple dump functionality coming soon")
+        """Copy a simple text dump of the current state to clipboard"""
+        # Generate the dump text
+        dump_text = self.generate_simple_dump()
+        
+        # Copy to clipboard
+        self.clipboard.setText(dump_text)
+        
+        # Capture current positions for next comparison
+        self._capture_current_positions()
+        
+        # Show confirmation
+        lines_count = len(self.entries)
+        QMessageBox.information(self, "Copied", f"Copied {lines_count} entries to clipboard")
+    
+    def generate_simple_dump(self) -> str:
+        """Generate a simple human-readable dump of the current state"""
+        if not self.entries:
+            return f"{self.title}\n(No entries)"
+        
+        # Sort entries the same way as the display
+        sorted_entries = sorted(self.entries, key=lambda x: (-x["value"], x["last_updated"]))
+        
+        lines = [self.title, "=" * len(self.title), ""]
+        
+        for rank, entry in enumerate(sorted_entries, 1):
+            change_indicator = self._get_position_change_indicator(entry['name'], rank)
+            line = f"{rank:2d} {change_indicator} {entry['name']:<20} {entry['value']:3d} points"
+            lines.append(line)
+        
+        return "\n".join(lines)
+    
+    def _get_position_change_indicator(self, name: str, current_position: int) -> str:
+        """Get the position change indicator for an entry"""
+        if name not in self.previous_positions:
+            return "⚪ -"  # No previous state
+        
+        previous_position = self.previous_positions[name]
+        
+        if current_position < previous_position:  # Position improved (lower number = better rank)
+            change = previous_position - current_position
+            return f"⬆️+{change}"
+        elif current_position > previous_position:  # Position declined
+            change = current_position - previous_position
+            return f"⬇️-{change}"
+        else:  # Position stayed the same
+            return "⚪ ="
+    
+    def _capture_current_positions(self):
+        """Capture current positions as previous state for next comparison"""
+        sorted_entries = sorted(self.entries, key=lambda x: (-x["value"], x["last_updated"]))
+        self.previous_positions = {}
+        for rank, entry in enumerate(sorted_entries, 1):
+            self.previous_positions[entry['name']] = rank
+    
+    def preview_simple_dump(self):
+        """Show a preview of what will be copied"""
+        dump_text = self.generate_simple_dump()
+        
+        # Create a message box with the preview
+        msg = QMessageBox(self)
+        msg.setWindowTitle("Preview - Simple Dump")
+        msg.setText("This is what will be copied to clipboard:")
+        msg.setDetailedText(dump_text)
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        
+        # Rename buttons
+        copy_btn = msg.button(QMessageBox.Ok)
+        copy_btn.setText("📋 Copy to Clipboard")
+        cancel_btn = msg.button(QMessageBox.Cancel)
+        cancel_btn.setText("Close")
+        
+        # Show dialog and handle result
+        result = msg.exec_()
+        if result == QMessageBox.Ok:
+            self.clipboard.setText(dump_text)
+            # Capture current positions for next comparison
+            self._capture_current_positions()
+            QMessageBox.information(self, "Copied", f"Copied {len(self.entries)} entries to clipboard")
         
     def update_and_copy_changes(self):
         QMessageBox.information(self, "TODO", "Update and copy changes functionality coming soon")

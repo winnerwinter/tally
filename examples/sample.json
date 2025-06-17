@@ -1,0 +1,25 @@
+{
+  "title": "Bread Champ",
+  "entries": [
+    {
+      "name": "Bob",
+      "value": 11,
+      "last_updated": 1750119141.6334321
+    },
+    {
+      "name": "George",
+      "value": 11,
+      "last_updated": 1750119143.30001
+    },
+    {
+      "name": "Fred",
+      "value": 9,
+      "last_updated": 1750118406.744457
+    },
+    {
+      "name": "Annie",
+      "value": 12,
+      "last_updated": 1750119138.383369
+    }
+  ]
+}
