@@ -359,6 +359,10 @@ class PyQtTallyApp(QMainWindow):
         
         try:
             self.data_manager.save_file(self.current_file_path, self.title, self.entries)
+            
+            # Capture current state as new baseline after successful save
+            self._capture_current_state()
+            
             QMessageBox.information(self, "Updated", f"Updated file: {os.path.basename(self.current_file_path)}")
         except Exception as e:
             QMessageBox.critical(self, "Error Updating File", f"Failed to update file:\n{str(e)}")
@@ -379,8 +383,6 @@ class PyQtTallyApp(QMainWindow):
         # Copy to clipboard
         self.clipboard.setText(dump_text)
         
-        # Capture current positions and values for next comparison
-        self._capture_current_state()
         
         # Show confirmation
         lines_count = len(self.entries)
