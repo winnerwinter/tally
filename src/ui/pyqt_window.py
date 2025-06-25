@@ -30,6 +30,7 @@ class PyQtTallyApp(QMainWindow):
         self.selected_entry_name = None  # Track by name instead of index
         self.current_file_path = None    # Track the current file
         self.previous_positions = {}     # Track previous positions for change indicators
+        self.previous_values = {}        # Track previous values for change indicators
         
         # Initialize data manager and settings
         schema_path = os.path.join(os.path.dirname(__file__), '..', 'core', 'schema.json')
@@ -138,8 +139,8 @@ class PyQtTallyApp(QMainWindow):
                 self.title_edit.setText(self.title)
                 self.refresh_display()
                 self.update_window_title()
-                # Capture initial positions as baseline
-                self._capture_current_positions()
+                # Capture initial positions and values as baseline
+                self._capture_current_state()
                 return
             except Exception:
                 # If loading fails, just start empty
@@ -152,8 +153,8 @@ class PyQtTallyApp(QMainWindow):
         self.title_edit.setText(self.title)
         self.refresh_display()
         self.update_window_title()
-        # Capture initial positions as baseline (empty, but sets up tracking)
-        self._capture_current_positions()
+        # Capture initial positions and values as baseline (empty, but sets up tracking)
+        self._capture_current_state()
         
     def refresh_display(self):
         """Update the list with current entries"""
@@ -165,7 +166,8 @@ class PyQtTallyApp(QMainWindow):
         # Add entries to list
         selected_row = -1
         for rank, entry in enumerate(sorted_entries, 1):
-            text = f"#{rank:2d}  {entry['name']:<20} {entry['value']:3d} points"
+            value_change_text = self._get_value_change_text(entry['name'], entry['value'])
+            text = f"#{rank:2d}  {entry['name']:<20} {entry['value']:3d} points{value_change_text}"
             item = QListWidgetItem(text)
             item.setData(Qt.UserRole, entry['name'])  # Store the entry name
             self.entries_list.addItem(item)
@@ -302,8 +304,8 @@ class PyQtTallyApp(QMainWindow):
             self.refresh_display()
             self.update_window_title()
             
-            # Capture initial positions as baseline
-            self._capture_current_positions()
+            # Capture initial positions and values as baseline
+            self._capture_current_state()
             
             QMessageBox.information(self, "Success", f"Loaded file: {os.path.basename(file_path)}")
             
@@ -342,8 +344,8 @@ class PyQtTallyApp(QMainWindow):
             self.refresh_display()
             self.update_window_title()
             
-            # Capture initial positions as baseline
-            self._capture_current_positions()
+            # Capture initial positions and values as baseline
+            self._capture_current_state()
             
             QMessageBox.information(self, "Success", f"Created new file: {os.path.basename(file_path)}")
         except Exception as e:
@@ -377,8 +379,8 @@ class PyQtTallyApp(QMainWindow):
         # Copy to clipboard
         self.clipboard.setText(dump_text)
         
-        # Capture current positions for next comparison
-        self._capture_current_positions()
+        # Capture current positions and values for next comparison
+        self._capture_current_state()
         
         # Show confirmation
         lines_count = len(self.entries)
@@ -396,7 +398,8 @@ class PyQtTallyApp(QMainWindow):
         
         for rank, entry in enumerate(sorted_entries, 1):
             change_indicator = self._get_position_change_indicator(entry['name'], rank)
-            line = f"{rank:2d} {change_indicator} {entry['name']:<20} {entry['value']:3d} points"
+            value_change_text = self._get_value_change_text(entry['name'], entry['value'])
+            line = f"{rank:2d} {change_indicator} {entry['name']:<20} {entry['value']:3d} points{value_change_text}"
             lines.append(line)
         
         return "\n".join(lines)
@@ -417,12 +420,29 @@ class PyQtTallyApp(QMainWindow):
         else:  # Position stayed the same
             return "⚪ ="
     
-    def _capture_current_positions(self):
-        """Capture current positions as previous state for next comparison"""
+    def _get_value_change_text(self, name: str, current_value: int) -> str:
+        """Get the value change text for an entry"""
+        if name not in self.previous_values:
+            return ""  # New entry, no change to display
+        
+        previous_value = self.previous_values[name]
+        value_change = current_value - previous_value
+        
+        if value_change > 0:
+            return f" (+{value_change})"
+        elif value_change < 0:
+            return f" ({value_change})"
+        else:
+            return ""  # No change, don't display anything
+    
+    def _capture_current_state(self):
+        """Capture current positions and values as previous state for next comparison"""
         sorted_entries = sorted(self.entries, key=lambda x: (-x["value"], x["last_updated"]))
         self.previous_positions = {}
+        self.previous_values = {}
         for rank, entry in enumerate(sorted_entries, 1):
             self.previous_positions[entry['name']] = rank
+            self.previous_values[entry['name']] = entry['value']
     
 
 
