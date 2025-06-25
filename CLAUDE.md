@@ -48,6 +48,7 @@ The `last_updated` timestamp is used for tiebreaking when entries have the same 
 
 - **Ranking System**: Entries are sorted by value (descending), then by `last_updated` (ascending) for tiebreaking
 - **Position Tracking**: The application tracks position changes between saves and shows movement indicators (🌱 for new, ⬆️ for up, ⬇️ for down, ⚪ for no change)
+- **Value Change Tracking**: Shows point value changes from the last saved state as (+N) or (-N) after point totals
 - **Clipboard Integration**: Simple dump format copies formatted rankings to clipboard
 - **File Persistence**: Remembers last opened file across sessions
 - **Duplicate Prevention**: Prevents duplicate entry names
@@ -56,7 +57,7 @@ The `last_updated` timestamp is used for tiebreaking when entries have the same 
 
 1. Load existing file or create new one
 2. Add/edit entries and modify point values
-3. Use "Update" to save changes and capture position changes
+3. Use "Update" to save changes and capture position/value change baseline
 4. Use "Copy Simple Dump" to export formatted rankings
 
 ### Development Notes
@@ -64,4 +65,4 @@ The `last_updated` timestamp is used for tiebreaking when entries have the same 
 - All file operations use absolute paths and proper error handling
 - The application suppresses Tk deprecation warnings on macOS
 - Entry selection is tracked by name (not index) to survive re-sorting
-- Position change tracking is captured on file saves and clipboard operations
+- Position and value change tracking is captured only on file saves (Update button), not on clipboard operations

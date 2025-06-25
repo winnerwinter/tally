@@ -10,7 +10,7 @@ Tally is a lightweight point-tracking application perfect for keeping score in g
 
 - **Visual Rankings**: Entries are automatically sorted by points, showing clear rankings
 - **Smart Tiebreaking**: When entries have the same points, they're ranked by who achieved that score first
-- **Change Tracking**: See how positions have changed since your last save with visual indicators
+- **Change Tracking**: See how positions and point values have changed since your last save with visual indicators
 - **Easy Management**: Add entries, edit names, and adjust points with simple +/- buttons
 - **Export Friendly**: Copy formatted rankings to share anywhere
 - **File-Based**: Your data is stored in simple JSON files you can backup or share
@@ -68,11 +68,12 @@ python3 run_tally.py
 ### Saving and Tracking Changes
 
 1. Click **"💾 Update"** to save your changes to the file
-2. After saving, position changes are tracked with indicators:
+2. After saving, position and value changes are tracked with indicators:
    - 🌱 New entries
    - ⬆️ Moved up in ranking
    - ⬇️ Moved down in ranking
    - ⚪ No change in position
+   - Point changes show as (+5) or (-3) after the point total
 
 ### Sharing Results
 
@@ -93,8 +94,8 @@ Game Night Scores
 =================
 
  1 🌱 - Alice            15 points
- 2 ⬆️+1 Bob              12 points
- 3 ⬇️-1 Charlie          10 points
+ 2 ⬆️+1 Bob              12 points (+3)
+ 3 ⬇️-1 Charlie          10 points (-2)
  4 ⚪ = Dave              8 points
 ```
 
